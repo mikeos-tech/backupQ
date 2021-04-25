@@ -104,12 +104,18 @@ int main(int argc, char* argv[]) {
 					}
 					break;
 				case 2 :
-					std::cout << "Register the file" << std::endl;
-//					rc = sqlite3_exec(db, sql, callback, (void*)disk_name, &zErrMsg);
+					{
+						std::cout << "Register the file" << std::endl;
+//						statement = 
+//						rc = sqlite3_exec(db, sql, callback, (void*)disk_name, &zErrMsg);
+					}
 					break;
 				case 3 :
-			        	std::cout << "Is this the oldest backup" << std::endl;
-//					rc = sqlite3_exec(db, sql, callback, (void*)disk_name, &zErrMsg);
+					{
+			        		std::cout << "This is the oldest backup" << std::endl;
+						const char *sql =  "SELECT Media.Name FROM Media INNER JOIN  History ON History.F_Media_Key = Media.Media_key ORDER BY History.Backup_Date ASC LIMIT 1;";
+						rc = sqlite3_exec(db, sql, if_exists, (void*)disk_name, &zErrMsg);
+						}
 			        	break;
 				case 4 :
 					std::cout << "Update Database" << std::endl;
