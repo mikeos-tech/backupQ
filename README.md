@@ -28,11 +28,11 @@ Components:
 - C++ Small amount of utility coding
 - MAL - A web interface to the LMS database, providing Artist, Album and Track lists/views - I developed this myself and will make it available when I've migrated it to smarty 
 
-I'm not claiming any expertise, that how I do this, will be the only or the best way to achieve it - *it probably won't be!*
+I'm not claiming any expertise or that how I do this will be the only, or the best way to achieve it - *it probably won't be!*
 
 I am hoping that you will be inspired to experiment and to learn, what would you like to have your server do?
 
-As part of this I'm using and learning tools like *vim*, *tmux*, *ssh*, *git* and github.  I've been using Linux for a long time but have been working mainly within the KDE desktop GUI recently, I enjoying getting back to the command line, learning a lot.
+As part of this I'm using and learning tools like *vim*, *tmux*, *ssh*, *git* and github.  I've been using Linux for a long time but have been working mainly within the KDE desktop GUI recently, I'm enjoying getting back to the command line and learning a lot.
 
 Mike
 
