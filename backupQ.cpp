@@ -41,9 +41,45 @@ std::string read_config()
 	return path;
 }
 
+bool add_media(sqlite3 *db)
+{
+	int rc = 0;
+	const std::string file_name_prefix = "music_server_backup-";
+	const std::string file_name_ext = ".dsk";	
+	std::string file_name;
+	std::string statement;
+	sqlite3_stmt *stmt = NULL;
+        const char *sql = "SELECT Media.Name FROM Media ORDER BY Media.Name DESC LIMIT 1;";	// Find the highest numbered media
+
+	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+// check it retrieved something/for errors
+	retval = sqlite3_step(stmt);
+        if(retval == SQLITE_ROW) { // If there is a name
+            file_name = (int)sqlite3_column_text(stmt, 0);
+	    // modifiy the file name to make it the next incremental name
+	} else { // If there isn't a name create a default one.
+		file_name = file_name_prefix;
+		file_name += "001";
+		file_name += file_name_ext;
+	}
+	std::cout << "New File Name: " << file_name;
+// what if there wasn't a row to return
+	sqlite3_finalize(stmt);
+
+	// Find the number from the string and add 1 to it and build a new name with that incremented number in it.
+	statement = "INSERT INTO Media (Name) VALUES ( 'Paul' );";	// Insert a new media item
+	statement = "SELECT Media_Key FROM Media WHERE ( Name = 'Paul' );";	// Get the key for the media item
+	// Get the current date, replace the year with 2000 and build a date string.
+	statement = "INSERT INTO History (F_Media_key, Backup_Date) VALUES ( key, 'date' );"; // Add a date to the media item
+	// Send the date string to stdout so php can include it in the web page
+
+
+
+}
+
 int main(int argc, char* argv[]) {
 // Check there are 2 parameters, that the first is a number and the second a string
-// if the above is true, feed the number into a case statement, that passes the string to an approiate callback function.
+// If the above is true, feed the number into a case statement, that passes the string to an approiate callback function.
 // the callback function should execute a query, use that to build a string and send that to stdout
 //
 // 1 - if the file exists in database
@@ -106,7 +142,8 @@ int main(int argc, char* argv[]) {
 				case 2 :
 					{
 						std::cout << "Register the file" << std::endl;
-//						statement = 
+						add_media(db);
+
 //						rc = sqlite3_exec(db, sql, callback, (void*)disk_name, &zErrMsg);
 					}
 					break;
