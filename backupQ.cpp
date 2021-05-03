@@ -2,6 +2,8 @@
 #include <sstream>
 #include <string>
 #include <fstream>
+#include <ctime>
+#include <iomanip>
 
 #include <sqlite3.h> 
 
@@ -29,6 +31,7 @@ static int if_exists(void *data, int argc, char **argv, char **azColName){
 
 std::string read_config()
 {
+	// Make this also read the suggested prefix for the label file names
 	std::string path;
 	std::ifstream config_file;    
     	config_file.open("/etc/backupQ.conf");    
@@ -41,40 +44,76 @@ std::string read_config()
 	return path;
 }
 
-bool add_media(sqlite3 *db)
+void add_media(sqlite3 *db)
 {
 	int rc = 0;
-	const std::string file_name_prefix = "music_server_backup-";
+	const std::string file_name_prefix = "music_server_backup-"; // Should I read this from the config file?
 	const std::string file_name_ext = ".dsk";	
 	std::string file_name;
 	std::string statement;
 	sqlite3_stmt *stmt = NULL;
-        const char *sql = "SELECT Media.Name FROM Media ORDER BY Media.Name DESC LIMIT 1;";	// Find the highest numbered media
-
-	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
-// check it retrieved something/for errors
-	retval = sqlite3_step(stmt);
-        if(retval == SQLITE_ROW) { // If there is a name
-            file_name = (int)sqlite3_column_text(stmt, 0);
-	    // modifiy the file name to make it the next incremental name
-	} else { // If there isn't a name create a default one.
-		file_name = file_name_prefix;
-		file_name += "001";
-		file_name += file_name_ext;
+        const char *sql_get_latest = "SELECT Media.Name FROM Media ORDER BY Media.Name DESC LIMIT 1;";	// Find the highest numbered media
+	rc = sqlite3_prepare_v2(db, sql_get_latest, -1, &stmt, 0);
+	if(!rc) { // check it retrieved something/for errors
+		rc = sqlite3_step(stmt);
+        	if(rc == SQLITE_ROW) { // If there is a name
+            		file_name = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+			int number = std::stoi(file_name.substr(file_name_prefix.size(), 3));
+			file_name = file_name_prefix;
+			std::string tmp = std::to_string(++number);
+			while(tmp.size() < 3) {
+				tmp.insert(0, 1, '0');
+			}
+			file_name += tmp;
+			file_name += file_name_ext;
+		} else { // If there isn't a name create a default one.
+			file_name = file_name_prefix;
+			file_name += "001";
+			file_name += file_name_ext;
+		}
+		sqlite3_finalize(stmt);
+		int key = 0;
+		sqlite3_stmt *state = NULL;
+		statement = "INSERT INTO Media (Name) VALUES ('";
+		statement.append(file_name);
+		statement += "');";
+		rc = sqlite3_prepare_v2(db, statement.c_str(), -1, &state, 0);
+		if(!rc) {
+			rc = sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+			if(rc == SQLITE_DONE) {
+				sqlite3_stmt *state = NULL;
+				statement = "SELECT Media_Key FROM Media WHERE (Name = '";
+				statement.append(file_name);
+				statement += "');";
+				rc = sqlite3_prepare_v2(db, statement.c_str(), -1, &state, 0);
+				if(!rc) { // check it retrieved something/for errors
+					rc = sqlite3_step(state);
+        				if(rc == SQLITE_ROW) { // If there is a name, get its key
+            					key = (int)sqlite3_column_int(state, 0);
+						const char *update = "INSERT INTO History (F_Media_Key, Backup_Date) VALUES (?, ?);";
+						sqlite3_stmt *stmt;
+						if(sqlite3_prepare(db, update, -1, &stmt, NULL ) != SQLITE_OK) {
+							std::cout << "Statement not correctly prepared!" << std::endl;						}
+						time_t     now = time(0);
+						struct tm  tstruct;
+						char       buf[80];
+						tstruct = *localtime(&now);
+						strftime(buf, sizeof(buf), "2000-%m-%d", &tstruct);
+						if(sqlite3_bind_int(stmt, 1, key) != SQLITE_OK) {
+							std::cout << "Could not add key value: " << key << std::endl;
+						}
+						if(sqlite3_bind_text(stmt, 2, buf, 11, SQLITE_STATIC) != SQLITE_OK) {
+							std::cout << "Could not add date value: " << buf << std::endl; 
+						}
+						rc = sqlite3_step(stmt);
+						sqlite3_finalize(stmt);
+ 					}
+				}
+				sqlite3_finalize(state);
+			}
+		}
 	}
-	std::cout << "New File Name: " << file_name;
-// what if there wasn't a row to return
-	sqlite3_finalize(stmt);
-
-	// Find the number from the string and add 1 to it and build a new name with that incremented number in it.
-	statement = "INSERT INTO Media (Name) VALUES ( 'Paul' );";	// Insert a new media item
-	statement = "SELECT Media_Key FROM Media WHERE ( Name = 'Paul' );";	// Get the key for the media item
-	// Get the current date, replace the year with 2000 and build a date string.
-	statement = "INSERT INTO History (F_Media_key, Backup_Date) VALUES ( key, 'date' );"; // Add a date to the media item
-	// Send the date string to stdout so php can include it in the web page
-
-
-
 }
 
 int main(int argc, char* argv[]) {
