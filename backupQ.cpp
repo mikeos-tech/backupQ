@@ -47,6 +47,7 @@ std::string read_config()
 void add_media(sqlite3 *db)
 {
 	int rc = 0;
+	bool worked = false;
 	const std::string file_name_prefix = "music_server_backup-"; // Should I read this from the config file?
 	const std::string file_name_ext = ".dsk";	
 	std::string file_name;
@@ -107,12 +108,19 @@ void add_media(sqlite3 *db)
 							std::cout << "Could not add date value: " << buf << std::endl; 
 						}
 						rc = sqlite3_step(stmt);
+						if(rc == SQLITE_DONE) { 
+							std::cout << "2-" << file_name << std::endl;
+							worked = true;
+						} 
 						sqlite3_finalize(stmt);
  					}
 				}
 				sqlite3_finalize(state);
 			}
 		}
+	}
+	if(!worked) {
+		std::cout << "0" << std::endl;
 	}
 }
 
