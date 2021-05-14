@@ -59,7 +59,7 @@ std::string read_config()
 // Called if the second parameter is 2 and doesn't use the second parameter.
 // Returns 2 and the name of the new item if it works.
 // Returns 0 if it doesn't work.
-// It sorts the names in the database in decending order, finds the highest number and increments it by 1 to generate the next name.
+// It sorts the names in the database in descending order, finds the highest number and increments it by 1 to generate the next name.
 void add_media(sqlite3 *db)
 {
 	bool worked = false;
@@ -157,7 +157,7 @@ void update_record(sqlite3 *db, const std::string name)
 
 int main(int argc, char* argv[]) {
 // Check there are 2 parameters, that the first is a number and the second a string
-// If the above is true, feed the number into a case statement, that passes the string to an approiate callback function.
+// If the above is true, feed the number into a case statement, that passes the string to an appropriate callback function.
 // the callback function should execute a query, use that to build a string and send that to stdout
 //
 // 1 - if the file exists in database
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
 //      return 6 and the suggested name if it isn't
 //      SELECT Media.Name, History.Backup_Date FROM Media INNER JOIN  History ON History.F_Media_Key = Media.Media_key ORDER BY History.Backup_Date ASC LIMIT 1;
 // 4 - Update the database to return the name has just been backed up to.
-//      return 4 and the name if succesful. 
+//      return 4 and the name if successful. 
 //      UPDATE History SET Backup_Date = '20210703' WHERE  F_Media_Key = (SELECT Media.Media_key FROM Media WHERE (Media.Name = 'madmikes_backup_002.vol'));
 
 //	write some PHP to display the list of disks in the database, ordered to show the oldest at the top (in red)
