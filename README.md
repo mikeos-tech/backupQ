@@ -32,7 +32,7 @@ I'm not claiming any expertise or that how I do this will be the only, or the be
 
 I am hoping that you will be inspired to experiment and to learn, what would you like to have your server do?
 
-As part of this I'm using and learning tools like *vim*, *tmux*, *ssh*, *git* and github.  I've been using Linux for a long time but have been working mainly within the KDE desktop GUI recently, I'm enjoying getting back to the command line and learning a lot.
+As part of this I'm using and learning tools like *vim*, *tmux*, *ssh*, *git* and GitHub.  I've been using Linux for a long time but have been working mainly within the KDE desktop GUI recently, I'm enjoying getting back to the command line and learning a lot.
 
 Mike
 
